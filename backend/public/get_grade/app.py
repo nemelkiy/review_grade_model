@@ -6,6 +6,7 @@ import joblib
 import pandas as pd
 import nltk
 import pickle
+import json
 
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
@@ -42,19 +43,35 @@ def model_result():
     return str(res[0])
 
 
-@app.route('/teach_model')
+@app.route('/teach_model', methods=['POST'])
 def model_learning():
     nltk.download('stopwords')
     nltk.download('wordnet')
 
+    # Получаем данные json
+    request_data = request.get_json()
+    request_data = json.dumps(request_data)
+    # Загружаем данные в json
+    dict_data = json.loads(request_data)
+    # Укладываем в файл
+    with open('data.json', 'w') as file:
+        json.dump(dict_data, file)
     # Объявим список стоп слов, подготовленных ранее. В основном это притяжительные местоимения (Your, yours, my etc.)
     stop_words = stopwords.words('english')
 
     # Загрузка датасета для обучения модели
     ds_data = pd.read_csv('dl_reviews.csv', header=None, names=['Grade', 'Review'])
+    js_data = pd.read_json('data.json')
+    # Находим длину нового датафрейма
+    rows_count = len(js_data)
+
+    # Ограничиваем длину 5к - количество новых данных
+    ds_data = ds_data[:5000 - rows_count]
+
+    # Сливаем датафреймы
+    ds_data = pd.concat([ds_data, js_data], ignore_index=True)
 
     # Очистка данных от лишних символов
-
     def preprocessor(text):
         text = re.sub('<[^>]*>', '', text)
         emoticons = re.findall('(?::|;|=)(?:-)?(?:\)|\(|D|P)', text)

@@ -21,4 +21,19 @@ class learnModelClass
 
         return curl_exec($curl);
     }
+
+    public function runTeaching($json)
+    {
+        $curl = curl_init('lab-get-review:5000/teach_model');
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
+        // Принимаем в виде массива. (false - в виде объекта)
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($json)
+        ]);
+
+        return curl_exec($curl);
+    }
 }

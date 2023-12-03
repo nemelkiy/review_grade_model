@@ -137,6 +137,126 @@ review_block{
 .user_grade{
     width: 115px;
     height: 35px;
-    background-color: red;
     margin-left: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.bad_human, .bad_human_2{
+    width: 35px;
+    height: 35px;
+    background-image: url("../images/cross.png");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-left: 10px;
+}
+
+.good_human, .good_human_2{
+    width: 35px;
+    height: 35px;
+    background-image: url("../images/hearts.png");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-left: 10px;
+}
+.good_human:hover, .bad_human:hover{
+    cursor: pointer;
+}
+
+.teach_model{
+    width: 250px;
+    height: 33px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    background-color: transparent;
+    color: rgba(1,1,1,0.6);
+    border: solid 2px rgba(1,1,1,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color .3s ease-in-out, border .3s ease-in-out, background-color .3s ease-in-out;
+}
+.teach_model:hover{
+    color: #ffffff;
+    border: solid 2px #ffffff;
+    background-color: rgba(50, 195, 19, 0.8);
+    cursor: pointer;
+}
+.teach_status{
+    height: 35px;
+    position: fixed;
+    left: 20px;
+    top: 20px;
+    background-color: #fff;
+    box-shadow: 1px 1px 10px 5px rgba(1,1,1,0.4);
+    border-radius: 10px;
+    display: none;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.lds-ellipsis {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin-top: -22px;
+}
+.lds-ellipsis div {
+    position: absolute;
+    top: 33px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: rgba(1,1,1,0.4);
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.lds-ellipsis div:nth-child(1) {
+    left: 8px;
+    animation: lds-ellipsis1 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(2) {
+    left: 8px;
+    animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(3) {
+    left: 32px;
+    animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(4) {
+    left: 56px;
+    animation: lds-ellipsis3 0.6s infinite;
+}
+@keyframes lds-ellipsis1 {
+    0% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+@keyframes lds-ellipsis3 {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(0);
+    }
+}
+@keyframes lds-ellipsis2 {
+    0% {
+        transform: translate(0, 0);
+    }
+    100% {
+        transform: translate(24px, 0);
+    }
+}
+.lps_wrap{
+    width: 80px;
+    height: 35px;
+    overflow: hidden;
 }

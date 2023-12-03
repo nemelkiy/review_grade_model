@@ -17,7 +17,53 @@ echo <<<'EOF'
     <script src="js/jquery.min.js"></script>
     <script src="js/app.js"></script>
 </head>
+<script >
+    function status_checker(){
+        $.ajax({
+            url: "statusChecker.php",
+            error: function(){
+                //Error code
+            },
+            success: function(data){
+                if (data === 'true'){
+                    console.log('Still teaching.... ')
+                    $( ".teach_status" ).css("display", "flex")
+                }else{
+                    console.log('teaching finished')
+                    $( ".teach_status" ).css("display", "none")
+                }
+            }
+        })
+        
+        setInterval(function() {
+            $.ajax({
+            url: "statusChecker.php",
+            error: function(){
+                //Error code
+            },
+            success: function(data){
+                if (data === 'true'){
+                    console.log('Still teaching.... ')
+                    $( ".teach_status" ).css("display", "flex")
+                }else{
+                    console.log('teaching finished')
+                    $( ".teach_status" ).css("display", "none")
+                }
+            }
+        })
+        }, 5000)
+    }
+    
+    status_checker();
+</script>
 <body>
+    <div class="teach_status">
+       <div class="lps_wrap">
+       <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+       
+       </div>
+        Модель обучается
+    </div>
     <div class="content_wrapper">
     <div class="headerline">
         <div class="head_container">
@@ -39,13 +85,16 @@ echo <<<'EOF'
                     Отправить отзыв
                     </div>
                 </form>
+                    <div class="teach_model">
+                    Обучить модель
+                    </div>
              </div>
              
              <div class="review_block">
              
                 
 EOF;
-           $reviews =  $connection->getAll("SELECT * FROM `reviews`");
+           $reviews =  $connection->getAll("SELECT * FROM `reviews` WHERE `teached` != 1 ORDER BY `id` DESC");
 
            if(count($reviews) > 0) {
                echo '<h3>Список отзывов:</h3>';
@@ -85,13 +134,27 @@ EOF;
                                 ';
                             }
                             echo '
-                                 <div class="user_grade">
+                                 <div class="user_grade" review_id="'.$review['id'].'">
                                    ';
                                 if ($review['human_result'] == 3){
-                                    $opacity = 0.6;
+                                    $opacity = 0.4;
+                                    $bGrade = 0.4;
+                                    $gGrade = 0.4;
+                                }else if ($review['human_result'] == 0){
+                                    $bGrade = 1;
+                                    $gGrade = 0.4;
                                 }else{
-                                    $opacity = 1;
+                                    $bGrade = 0.4;
+                                    $gGrade = 1;
                                 }
+                                echo '
+                                    <div class="bad_human" style="opacity: '.$bGrade.'">
+                                    
+                                    </div>
+                                    <div class="good_human" style="opacity: '.$gGrade.'">
+                                    
+                                    </div>
+                                ';
 
                                 
                             echo '
@@ -105,6 +168,82 @@ EOF;
            }else{
                echo '<h3>Вы не отправляли отзывы на оценку моделью</h3>';
            }
+
+
+$reviews =  $connection->getAll("SELECT * FROM `reviews` WHERE `teached` != 0 ORDER BY `id` DESC");
+
+if(count($reviews) > 0) {
+    echo '<h3>Список отзывов которыми обучили модель:</h3>';
+    echo '
+                   <div class="review_line">
+                   <div class="review_text">
+                   Текст отзыва
+                   </div>
+                   <div class="ml_grade" style="background-image: none">
+                   Оценка модели
+                    </div>
+                    <div class="ml_grade" style="background-image: none">
+                   Оценка человека
+                    </div>
+                   </div>
+               ';
+
+    foreach ($reviews as $review){
+        if ($review['teached'] == 1){
+            echo '
+                        <div class="review_line">
+                            <div class="review_text">
+                                '.$review['review_text'].'
+                            </div>
+                            ';
+            if ($review['ml_result'] == 1){
+                echo '
+                                <div class="ml_good">
+                                    
+                                </div>
+                                ';
+            }else{
+                echo '
+                                <div class="ml_bad">
+                                    
+                                </div>
+                                ';
+            }
+            echo '
+                                 <div class="user_grade" review_id="'.$review['id'].'">
+                                   ';
+            if ($review['human_result'] == 3){
+                $opacity = 0.4;
+                $bGrade = 0.4;
+                $gGrade = 0.4;
+            }else if ($review['human_result'] == 0){
+                $bGrade = 1;
+                $gGrade = 0.4;
+            }else{
+                $bGrade = 0.4;
+                $gGrade = 1;
+            }
+            echo '
+                                    <div class="bad_human_2" style="opacity: '.$bGrade.'">
+                                    
+                                    </div>
+                                    <div class="good_human_2" style="opacity: '.$gGrade.'">
+                                    
+                                    </div>
+                                ';
+
+
+            echo '
+                                </div>
+                            ';
+            echo '
+                        </div>
+                ';
+        }
+    }
+}else{
+    echo '<h3>Вы не отправляли отзывы дообучение модели</h3>';
+}
 
 echo <<<'EOF'
                 
@@ -139,5 +278,63 @@ echo <<<'EOF'
       });
       
     });
+    
+    // Плохая оценка юзверя
+    $( ".bad_human" ).click(function() {
+      let parent = this.parentElement
+      let id = parent.getAttribute('review_id')
+      
+      let request = $.ajax({
+          url: "setReviewGrade.php",
+          method: "POST",
+          data: { review_id : id, user_grade: 0 },
+          dataType: "html"
+      })
+        
+      request.done(function( msg ) {
+          location.reload()
+      });
+      
+    });
+    
+    // Хорошая оценка юзверя
+    $( ".good_human" ).click(function() {
+      let parent = this.parentElement
+      let id = parent.getAttribute('review_id')
+      
+      let request = $.ajax({
+          url: "setReviewGrade.php",
+          method: "POST",
+          data: { review_id : id, user_grade: 1 },
+          dataType: "html"
+      })
+        
+      request.done(function( msg ) {
+        location.reload()
+      });
+      
+    });
+    
+    // обучение модели
+    $( ".teach_model" ).click(function() {
+      let parent = this.parentElement
+      let id = parent.getAttribute('review_id')
+      
+      let request = $.ajax({
+          url: "runTeaching.php",
+          method: "POST",
+          data: { review_id : id, user_grade: 1 },
+          dataType: "html",
+          timeout: 1500000, // Ставлю таймат побольше для дебага
+      })
+        
+      request.done(function( msg ) {
+        console.log(msg)
+      });
+      
+    });
+    
     </script>
+
+
 EOF;
